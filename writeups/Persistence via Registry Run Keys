@@ -1,0 +1,53 @@
+🎯 Objective: 
+Detect a persistence technique where a PowerShell script is configured to run at user logon by modifying the HKCU\Software\Microsoft\Windows\CurrentVersion\Run registry key.
+
+🛠️ Environment Setup
+1- Victim machine: Windows 10 with Wazuh agent and Sysmon installed
+2- SIEM: Wazuh Manager on Kali Linux
+3- MITRE Technique: T1547.001 – Registry Run Keys / Startup Folder
+
+🔸 Attack Simulation Steps
+1. Create a PowerShell Script
+Create a test script that represents the payload to persist:
+echo "Start-Sleep -Seconds 30; Write-Output 'Persistence Test'" > C:\Users\windows\Documents\test.ps1
+
+2. Add Persistence via Registry
+Use reg.exe to add a new Run key entry that executes the script at user logon:
+reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v TestPersistence /t REG_SZ /d "powershell.exe -WindowStyle Hidden -File C:\Users\windows\Documents\test.ps1"
+This command sets up persistence by instructing Windows to run the script silently every time the user logs in.
+
+📦 Detection in Wazuh
+✅ Built-in Detection
+Wazuh includes a built-in rule that detects modifications to registry keys related to persistence.
+
+ ** Rule ID: 92302
+ ** Event Source: Sysmon Event ID 13
+ ** Condition: Registry value set under CurrentVersion\Run using reg.exe
+ ** MITRE Mapping: T1547.001
+
+This rule was triggered successfully during the test and recorded all relevant information including:
+ ** Registry path modified
+ ** Value details (payload)
+ ** Executing process (reg.exe)
+ ** User context
+ ** Parent-child relationship (PowerShell → reg.exe)
+
+ Custom Detection Rule
+A custom rule was added to wrap the built-in rule with enhanced visibility and labeling:
+
+<group name="custom,persistence,registry">
+  <rule id="100201" level="12">
+    <if_sid>92302</if_sid>
+    <description>Custom Alert: Registry persistence technique detected (Run key modified)</description>
+    <mitre>
+      <id>T1547.001</id>
+      <tactic>Persistence</tactic>
+      <technique>Registry Run Keys / Startup Folder</technique>
+    </mitre>
+  </rule>
+</group>
+--> File path: /var/ossec/etc/rules/local_rules.xml
+
+✅ Conclusion
+This simulation successfully demonstrated how attackers can establish persistence by modifying the Windows registry Run key to execute a malicious or scheduled script at user logon — a technique well-documented under MITRE ATT&CK T1547.001.
+Using Sysmon Event ID 13 and Wazuh’s built-in rule 92302, along with a custom correlation rule (100201), we were able to detect this activity in real-time. 
