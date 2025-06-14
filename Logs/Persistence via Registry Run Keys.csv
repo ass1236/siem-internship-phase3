@@ -1,7 +1,7 @@
 timestamp,agent.name,rule.description,rule.level,rule.id
-"Jun 14, 2025 @ 17:56:35.929","vic-agent","Custom Alert: Registry persistence technique detected (Run key modified)","12","100201"
-"Jun 14, 2025 @ 17:56:35.883","vic-agent","Value added to registry key has Base64-like pattern","10","92041"
-"Jun 14, 2025 @ 17:53:56.233","vic-agent","Registry entry to be executed on next logon was modified using command line application reg.exe","6","92302"
+"this the rules was triggered NO 1-->Jun 14, 2025 @ 17:56:35.929","vic-agent","Custom Alert: Registry persistence technique detected (Run key modified)","12","100201"
+"this the rules was triggered NO 2-->Jun 14, 2025 @ 17:56:35.883","vic-agent","Value added to registry key has Base64-like pattern","10","92041"
+"this the rules was triggered NO 3-->Jun 14, 2025 @ 17:53:56.233","vic-agent","Registry entry to be executed on next logon was modified using command line application reg.exe","6","92302"
 "Jun 14, 2025 @ 17:53:56.170","vic-agent","Value added to registry key has Base64-like pattern","10","92041"
 "Jun 14, 2025 @ 17:53:55.093","vic-agent","Powershell process created an executable file in Windows root folder","9","92205"
 "Jun 14, 2025 @ 17:53:50.520","vic-agent","Wazuh agent started.","3","503"
