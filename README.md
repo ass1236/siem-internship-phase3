@@ -24,8 +24,11 @@ This lab simulates realistic APT activities in a safe and monitored environment 
 🔧 Infrastructure Overview
 
 Component|     Role|    	OS/Platform
--------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
 Wazuh Manager|   	Central SIEM and rule engine|  	Kali Linux / Ubuntu
+----------------------------------------------------------------------------------------------------------
 Wazuh Dashboard|	Visual interface for alerts/logs|	  Web UI (Kibana-based)
+----------------------------------------------------------------------------------------------------------
 Windows Victim|  	Target of simulated APT attacks which have sysmon+wazuh agent installed|	 Windows 10/11
+-----------------------------------------------------------------------------------------------------------
 Attacker Machine|	Simulates attacker actions|	Kali Linux+windows vm 
