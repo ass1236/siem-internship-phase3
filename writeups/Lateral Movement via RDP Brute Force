@@ -17,7 +17,7 @@ T** 1021.001 – Remote Services: Remote Desktop Protocol (RDP)
   </rule>
 
   <!-- Step 2: Trigger this rule if multiple failures within short time -->
-  <rule id="100402" level="12" frequency="2" timeframe="60">
+  <rule id="100402" level="12" frequency="5" timeframe="300">
     <if_matched_sid>100401</if_matched_sid>
     <description>🚨 Possible RDP Brute Force - Multiple logon failures detected</description>
     <group>rdp,bruteforce,windows</group>
