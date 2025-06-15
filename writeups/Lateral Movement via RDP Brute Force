@@ -1,0 +1,71 @@
+🎯 Objective
+To detect lateral movement in a Windows environment using RDP brute-force attacks with stolen credentials. This is a common post-exploitation technique observed in real-world breaches. This scenario uses a combination of failed RDP login attempts and a subsequent successful RDP logon to raise a high-confidence alert.
+
+🧠 MITRE ATT&CK Techniques
+ ** T1110 – Brute Force
+T** 1021.001 – Remote Services: Remote Desktop Protocol (RDP)
+
+📜 Custom Wazuh Rule Set
+
+<group name="rdp,lateral_movement,bruteforce,sysmon,windows,">
+
+  <!-- Step 1: Use Wazuh built-in rule for RDP failed logon (4625) -->
+  <rule id="100401" level="5">
+    <if_sid>60122</if_sid> <!-- Logon Failure - Unknown user or bad password -->
+    <description>RDP Logon Failure Detected (Event ID 4625)</description>
+    <group>rdp,windows,bruteforce</group>
+  </rule>
+
+  <!-- Step 2: Trigger this rule if multiple failures within short time -->
+  <rule id="100402" level="12" frequency="2" timeframe="60">
+    <if_matched_sid>100401</if_matched_sid>
+    <description>🚨 Possible RDP Brute Force - Multiple logon failures detected</description>
+    <group>rdp,bruteforce,windows</group>
+  </rule>
+
+  <!-- Step 3: Correlate with a successful RDP login (built-in SID 92657) -->
+  <rule id="100403" level="14">
+    <if_sid>92657</if_sid> <!-- Successful Remote Logon Detected -->
+    <if_matched_sid>100402</if_matched_sid>
+    <description>🚨 Possible Lateral Movement via RDP - Brute force followed by successful login</description>
+    <group>rdp,lateral_movement,bruteforce,windows</group>
+    <mitre>
+      <id>T1110</id>
+      <id>T1021.001</id>
+    </mitre>
+  </rule>
+
+</group>
+
+🛠️ Requirements and Configuration
+✅ Enable Audit Policy for Logon Events
+Enable logging of both success and failure logons:
+
+bash
+Copy
+Edit
+AuditPol /set /subcategory:"Logon" /success:enable /failure:enable
+This is needed to generate:
+
+1- 4625 – Failed RDP login
+2- 4624 – Successful login
+** Wazuh rule 92657 maps to successful RDP logon with possible pass-the-hash detection.
+
+
+🔐  Simulate RDP Brute Force
+On a Linux attacker machine, use Hydra:
+--> hydra -t 4 -V -f -l username -P passwords.txt rdp://192.168.X.X
+
+✅ Verifying Detection
+You should see Wazuh alerts like:
+
+** 100401 – Single RDP failed login.
+** 100402 – Brute-force activity due to multiple failures.
+** 100403 – High-level alert indicating possible lateral movement via RDP.
+
+✅ Conclusion
+This simulation demonstrated how to detect lateral movement via RDP brute-force attacks using a combination of Wazuh built-in rules and custom correlation logic. By leveraging Windows Security Events (4625 for failed logon and the built-in rule 92657 for successful remote logon), we built a multi-stage detection that escalates in severity based on attacker behavior:
+
+** Initial brute-force attempts are detected through repeated RDP login failures.
+** A successful remote login following those failures increases the confidence of malicious activity.
+** The final alert suggests possible lateral movement, which is a key phase in real-world attacks.
